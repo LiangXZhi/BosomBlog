@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bosomblog.dao.BlogsMapper">
+  <resultMap id="BaseResultMap" type="com.bosomblog.entity.Blogs">
+    <id column="bid" jdbcType="INTEGER" property="bid" />
+    <result column="bname" jdbcType="VARCHAR" property="bname" />
+    <result column="bintro" jdbcType="VARCHAR" property="bintro" />
+    <result column="bteam" jdbcType="VARCHAR" property="bteam" />
+    <result column="bslogan" jdbcType="VARCHAR" property="bslogan" />
+    <result column="bcontact" jdbcType="VARCHAR" property="bcontact" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    bid, bname, bintro, bteam, bslogan, bcontact
+  </sql>
+  <select id="selectByExample" parameterType="com.bosomblog.entity.BlogsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from blogs
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from blogs
+    where bid = #{bid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from blogs
+    where bid = #{bid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bosomblog.entity.BlogsExample">
+    delete from blogs
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bosomblog.entity.Blogs">
+    insert into blogs (bid, bname, bintro, 
+      bteam, bslogan, bcontact
+      )
+    values (#{bid,jdbcType=INTEGER}, #{bname,jdbcType=VARCHAR}, #{bintro,jdbcType=VARCHAR}, 
+      #{bteam,jdbcType=VARCHAR}, #{bslogan,jdbcType=VARCHAR}, #{bcontact,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bosomblog.entity.Blogs">
+    insert into blogs
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="bid != null">
+        bid,
+      </if>
+      <if test="bname != null">
+        bname,
+      </if>
+      <if test="bintro != null">
+        bintro,
+      </if>
+      <if test="bteam != null">
+        bteam,
+      </if>
+      <if test="bslogan != null">
+        bslogan,
+      </if>
+      <if test="bcontact != null">
+        bcontact,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="bid != null">
+        #{bid,jdbcType=INTEGER},
+      </if>
+      <if test="bname != null">
+        #{bname,jdbcType=VARCHAR},
+      </if>
+      <if test="bintro != null">
+        #{bintro,jdbcType=VARCHAR},
+      </if>
+      <if test="bteam != null">
+        #{bteam,jdbcType=VARCHAR},
+      </if>
+      <if test="bslogan != null">
+        #{bslogan,jdbcType=VARCHAR},
+      </if>
+      <if test="bcontact != null">
+        #{bcontact,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bosomblog.entity.BlogsExample" resultType="java.lang.Long">
+    select count(*) from blogs
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update blogs
+    <set>
+      <if test="record.bid != null">
+        bid = #{record.bid,jdbcType=INTEGER},
+      </if>
+      <if test="record.bname != null">
+        bname = #{record.bname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bintro != null">
+        bintro = #{record.bintro,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bteam != null">
+        bteam = #{record.bteam,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bslogan != null">
+        bslogan = #{record.bslogan,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bcontact != null">
+        bcontact = #{record.bcontact,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update blogs
+    set bid = #{record.bid,jdbcType=INTEGER},
+      bname = #{record.bname,jdbcType=VARCHAR},
+      bintro = #{record.bintro,jdbcType=VARCHAR},
+      bteam = #{record.bteam,jdbcType=VARCHAR},
+      bslogan = #{record.bslogan,jdbcType=VARCHAR},
+      bcontact = #{record.bcontact,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bosomblog.entity.Blogs">
+    update blogs
+    <set>
+      <if test="bname != null">
+        bname = #{bname,jdbcType=VARCHAR},
+      </if>
+      <if test="bintro != null">
+        bintro = #{bintro,jdbcType=VARCHAR},
+      </if>
+      <if test="bteam != null">
+        bteam = #{bteam,jdbcType=VARCHAR},
+      </if>
+      <if test="bslogan != null">
+        bslogan = #{bslogan,jdbcType=VARCHAR},
+      </if>
+      <if test="bcontact != null">
+        bcontact = #{bcontact,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where bid = #{bid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bosomblog.entity.Blogs">
+    update blogs
+    set bname = #{bname,jdbcType=VARCHAR},
+      bintro = #{bintro,jdbcType=VARCHAR},
+      bteam = #{bteam,jdbcType=VARCHAR},
+      bslogan = #{bslogan,jdbcType=VARCHAR},
+      bcontact = #{bcontact,jdbcType=VARCHAR}
+    where bid = #{bid,jdbcType=INTEGER}
+  </update>
+</mapper>

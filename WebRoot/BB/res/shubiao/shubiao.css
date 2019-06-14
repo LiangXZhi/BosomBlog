@@ -1,0 +1,9 @@
+@charset "utf-8";
+/* CSS Document */
+
+body{
+    cursor:url(shubiao1.png),auto;
+}
+a,a:visited{
+    cursor:url(shubiao2.png),auto;
+}

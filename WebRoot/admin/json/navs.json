@@ -1,0 +1,24 @@
+﻿{
+	"contentManagement": [
+		{
+			"title": "博客管理",
+			"icon": "&#xe656;",
+			"href": "sells.bb",
+			"spread": false
+		},
+		{
+			"title": "用户管理",
+			"icon": "&#xe770;",
+			"href": "search.bb",
+			"spread": false
+		},
+		{
+			"title": "公告管理",
+			"icon": "&#xe667;",
+			"href": "searchs.bb",
+			"spread": false
+		}
+	]
+}
+
+

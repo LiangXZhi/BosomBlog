@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bosomblog.dao.SuggestMapper">
+  <resultMap id="BaseResultMap" type="com.bosomblog.entity.Suggest">
+    <id column="sid" jdbcType="INTEGER" property="sid" />
+    <result column="usersId" jdbcType="INTEGER" property="usersid" />
+    <result column="stitle" jdbcType="VARCHAR" property="stitle" />
+    <result column="scontent" jdbcType="VARCHAR" property="scontent" />
+    <result column="sendTime" jdbcType="TIMESTAMP" property="sendtime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    sid, usersId, stitle, scontent, sendTime
+  </sql>
+  <select id="selectByExample" parameterType="com.bosomblog.entity.SuggestExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from suggest
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from suggest
+    where sid = #{sid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from suggest
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bosomblog.entity.SuggestExample">
+    delete from suggest
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bosomblog.entity.Suggest">
+    insert into suggest (sid, usersId, stitle, 
+      scontent, sendTime)
+    values (#{sid,jdbcType=INTEGER}, #{usersid,jdbcType=INTEGER}, #{stitle,jdbcType=VARCHAR}, 
+      #{scontent,jdbcType=VARCHAR}, #{sendtime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bosomblog.entity.Suggest">
+    insert into suggest
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="sid != null">
+        sid,
+      </if>
+      <if test="usersid != null">
+        usersId,
+      </if>
+      <if test="stitle != null">
+        stitle,
+      </if>
+      <if test="scontent != null">
+        scontent,
+      </if>
+      <if test="sendtime != null">
+        sendTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="sid != null">
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="usersid != null">
+        #{usersid,jdbcType=INTEGER},
+      </if>
+      <if test="stitle != null">
+        #{stitle,jdbcType=VARCHAR},
+      </if>
+      <if test="scontent != null">
+        #{scontent,jdbcType=VARCHAR},
+      </if>
+      <if test="sendtime != null">
+        #{sendtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bosomblog.entity.SuggestExample" resultType="java.lang.Long">
+    select count(*) from suggest
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update suggest
+    <set>
+      <if test="record.sid != null">
+        sid = #{record.sid,jdbcType=INTEGER},
+      </if>
+      <if test="record.usersid != null">
+        usersId = #{record.usersid,jdbcType=INTEGER},
+      </if>
+      <if test="record.stitle != null">
+        stitle = #{record.stitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scontent != null">
+        scontent = #{record.scontent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sendtime != null">
+        sendTime = #{record.sendtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update suggest
+    set sid = #{record.sid,jdbcType=INTEGER},
+      usersId = #{record.usersid,jdbcType=INTEGER},
+      stitle = #{record.stitle,jdbcType=VARCHAR},
+      scontent = #{record.scontent,jdbcType=VARCHAR},
+      sendTime = #{record.sendtime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bosomblog.entity.Suggest">
+    update suggest
+    <set>
+      <if test="usersid != null">
+        usersId = #{usersid,jdbcType=INTEGER},
+      </if>
+      <if test="stitle != null">
+        stitle = #{stitle,jdbcType=VARCHAR},
+      </if>
+      <if test="scontent != null">
+        scontent = #{scontent,jdbcType=VARCHAR},
+      </if>
+      <if test="sendtime != null">
+        sendTime = #{sendtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bosomblog.entity.Suggest">
+    update suggest
+    set usersId = #{usersid,jdbcType=INTEGER},
+      stitle = #{stitle,jdbcType=VARCHAR},
+      scontent = #{scontent,jdbcType=VARCHAR},
+      sendTime = #{sendtime,jdbcType=TIMESTAMP}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+</mapper>

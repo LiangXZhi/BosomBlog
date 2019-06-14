@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bosomblog.dao.PostTypeMapper">
+  <resultMap id="BaseResultMap" type="com.bosomblog.entity.PostType">
+    <id column="ptype_id" jdbcType="INTEGER" property="ptypeId" />
+    <result column="ptype_name" jdbcType="VARCHAR" property="ptypeName" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ptype_id, ptype_name
+  </sql>
+  
+  <!-- 查询所有博文类型 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+  	select * from post_type
+  </select>
+  
+  <select id="selectByExample" parameterType="com.bosomblog.entity.PostTypeExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from post_type
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  
+  <!-- 根据博文类型编号，查询对应昵称 -->
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultType="java.lang.String">
+    select ptype_name
+    from post_type
+    where ptype_id = #{ptypeId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from post_type
+    where ptype_id = #{ptypeId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bosomblog.entity.PostTypeExample">
+    delete from post_type
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bosomblog.entity.PostType">
+    insert into post_type (ptype_id, ptype_name)
+    values (#{ptypeId,jdbcType=INTEGER}, #{ptypeName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bosomblog.entity.PostType">
+    insert into post_type
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="ptypeId != null">
+        ptype_id,
+      </if>
+      <if test="ptypeName != null">
+        ptype_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="ptypeId != null">
+        #{ptypeId,jdbcType=INTEGER},
+      </if>
+      <if test="ptypeName != null">
+        #{ptypeName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bosomblog.entity.PostTypeExample" resultType="java.lang.Long">
+    select count(*) from post_type
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update post_type
+    <set>
+      <if test="record.ptypeId != null">
+        ptype_id = #{record.ptypeId,jdbcType=INTEGER},
+      </if>
+      <if test="record.ptypeName != null">
+        ptype_name = #{record.ptypeName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update post_type
+    set ptype_id = #{record.ptypeId,jdbcType=INTEGER},
+      ptype_name = #{record.ptypeName,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bosomblog.entity.PostType">
+    update post_type
+    <set>
+      <if test="ptypeName != null">
+        ptype_name = #{ptypeName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ptype_id = #{ptypeId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bosomblog.entity.PostType">
+    update post_type
+    set ptype_name = #{ptypeName,jdbcType=VARCHAR}
+    where ptype_id = #{ptypeId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bosomblog.dao.PostsMapper">
+	<resultMap id="BaseResultMap" type="com.bosomblog.entity.Posts">
+		<id column="pid" jdbcType="INTEGER" property="pid" />
+		<result column="ptitle" jdbcType="VARCHAR" property="ptitle" />
+		<result column="pcontent" jdbcType="VARCHAR" property="pcontent" />
+		<result column="pdate" jdbcType="TIMESTAMP" property="pdate" />
+		<result column="pcomments" jdbcType="INTEGER" property="pcomments" />
+		<result column="preadings" jdbcType="INTEGER" property="preadings" />
+		<result column="pstatus" jdbcType="INTEGER" property="pstatus" />
+		<result column="plike" jdbcType="INTEGER" property="plike" />
+		<result column="pprivate" jdbcType="INTEGER" property="pprivate" />
+		<result column="paudit" jdbcType="INTEGER" property="paudit" />
+		<result column="pelite" jdbcType="INTEGER" property="pelite" />
+		<association property="users" resultMap="UsersResultMap"></association>
+		<association property="posttype" resultMap="PTypeResultMap"></association>
+	</resultMap>
+	<!-- 定义一个用户resultMap -->
+	<resultMap id="UsersResultMap" type="com.bosomblog.entity.Users">
+		<id column="usesId" jdbcType="INTEGER" property="usesid" />
+		<result column="userpic" jdbcType="VARCHAR" property="userpic" />
+		<result column="usersName" jdbcType="VARCHAR" property="usersname" />
+		<result column="password" jdbcType="VARCHAR" property="password" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+		<result column="sex" jdbcType="VARCHAR" property="sex" />
+		<result column="birthday" jdbcType="DATE" property="birthday" />
+		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="intro" jdbcType="VARCHAR" property="intro" />
+		<result column="grade" jdbcType="INTEGER" property="grade" />
+		<result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+		<result column="banaccount" jdbcType="INTEGER" property="banaccount" />
+	</resultMap>
+
+	<resultMap id="CommResultMap" type="com.bosomblog.entity.Comment">
+		<id column="cid" jdbcType="INTEGER" property="cid" />
+	</resultMap>
+
+	<!-- 定义一个博文类型resultMap -->
+	<resultMap id="PTypeResultMap" type="com.bosomblog.entity.PostType">
+		<id column="ptype_id" jdbcType="INTEGER" property="ptypeId" />
+		<result column="ptype_name" jdbcType="VARCHAR" property="ptypeName" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+
+<!-- 根据博文类型编号，查询满足条件的所有博文信息 -->
+	<select id="selectPostsByPtypeID" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where pt.ptype_id = p.ptype_id and p.usersId = u.usesId and
+		p.paudit = 2 and p.pprivate = 0 and
+		pt.ptype_id = #{ptypeid}
+	</select>
+
+	<!-- 根据博文标题模糊查询博文信息 -->
+	<select id="selectPostsByPTitle" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where pt.ptype_id = p.ptype_id and p.usersId = u.usesId and
+		p.paudit = 2 and p.pprivate = 0 and
+		ptitle like #{ptitle}
+	</select>
+
+	<!-- 根据用户ID，查询所有发布的帖子 -->
+	<select id="selectAllByUid" resultMap="BaseResultMap">
+		select * from posts p , users u , post_type pt
+		where pt.ptype_id = p.ptype_id and p.usersId = u.usesId and
+		usersId = #{uid}
+	</select>
+
+	<!-- 后台id查询单条博文 -->
+	<select id="selectByany" resultMap="BaseResultMap"
+		parameterType="int">
+		select * from posts p , users u , post_type pt where
+		pt.ptype_id =
+		p.ptype_id and p.usersId = u.usesId and p.pid=#{id}
+	</select>
+
+	<!-- 后台根据博文的标题或内容模糊查询 -->
+	<select id="selectgetsome" resultMap="BaseResultMap"
+		parameterType="String">
+		select * from posts p , users u , post_type pt where
+		pt.ptype_id =
+		p.ptype_id and p.usersId = u.usesId
+		<if test="sum!='%%'">
+			and (ptitle like #{sum} or usersname like #{sum})
+		</if>
+		ORDER BY p.pdate DESC
+	</select>
+
+	<!-- 后台查询所有博客信息 -->
+	<select id="selectByAllmsg" parameterType="com.bosomblog.entity.PostsExample"
+		resultMap="BaseResultMap">
+		select * from posts p , users u , post_type pt where
+		pt.ptype_id =
+		p.ptype_id and p.usersId = u.usesId ORDER BY p.pdate DESC
+	</select>
+
+
+	<!-- 根据博客ID查询所有评论ID -->
+	<select id="queryByPostsID" parameterType="int" resultMap="CommResultMap">
+		SELECT c.cid FROM posts p,comment c WHERE p.pid=c.pid and p.pid=#{id}
+	</select>
+
+
+	<!-- 根据id删除博文 -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from posts
+		where pid = #{pid,jdbcType=INTEGER}
+	</delete>
+
+
+
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		pid, usersId, ptitle, pcontent, ptype_id, pdate, pcomments, preadings,
+		pstatus, plike,
+		pprivate, paudit, pelite
+	</sql>
+
+	<!-- 查询置顶的帖子-列表需要显示的信息 -->
+	<select id="getPostByPstatus" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		pstatus = 1 and p.paudit = 2 and p.pprivate = 0
+		order by p.pdate desc
+		limit 0,4;
+	</select>
+
+	<!-- 查询所有帖子信息 -->
+	<select id="selectByAll" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.paudit = 2 and p.pprivate = 0
+		order by p.pdate desc
+		limit #{page},#{limit};
+	</select>
+
+	<!-- 查询总有多少条博文 -->
+	<select id="selectByCount" resultType="java.lang.Integer">
+		select count(*)
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.paudit = 2 and p.pprivate = 0
+		order by p.pdate desc;
+	</select>
+
+	<!-- 查询精贴总数量 -->
+	<select id="selectByJtCount" resultType="java.lang.Integer">
+		select COUNT(*)
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.paudit = 2 and p.pprivate = 0 and p.pelite = 1
+		order by p.pdate desc;
+	</select>
+
+	<!-- 查询所有是精贴的博文 ， 即pelite = 1 -->
+	<select id="selectByPelite" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.paudit = 2 and p.pprivate = 0 and p.pelite = 1
+		order by p.pdate desc
+		limit #{page},#{limit};
+	</select>
+
+	<!-- 根据浏览量查询帖子 -->
+	<select id="selectByPreadings" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.paudit = 2 and p.pprivate = 0
+		order by p.preadings desc
+		limit #{page},#{limit};
+	</select>
+
+	<!-- 根据评论量查询帖子 -->
+	<select id="selectByPcomments" resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.paudit = 2 and p.pprivate = 0
+		order by p.pcomments desc
+		limit #{page},#{limit};
+	</select>
+
+	<!-- 添加一个评论数 -->
+	<update id="updateCommentadd" parameterType="com.bosomblog.entity.Posts">
+		update posts set
+		pcomments=pcomments+1
+		where pid = #{pid};
+	</update>
+
+	<!-- 减少一个评论数 -->
+	<update id="updateCommentdown" parameterType="com.bosomblog.entity.Posts">
+		update posts set
+		pcomments=pcomments-1
+		where pid = #{pid};
+	</update>
+
+	<!-- 添加一个浏览量 -->
+	<update id="updateReadingadd" parameterType="com.bosomblog.entity.Posts">
+		update posts set
+		preadings=preadings+1
+		where pid = #{pid};
+	</update>
+
+	<!-- 根据博文编号查询博文信息 -->
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select *
+		from posts p , users u , post_type pt
+		where p.usersId = u.usesId and
+		pt.ptype_id = p.ptype_id and
+		p.pid = #{pid,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectByExample" parameterType="com.bosomblog.entity.PostsExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		'true' as QUERYID,
+		<include refid="Base_Column_List" />
+		from posts
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<delete id="deleteByExample" parameterType="com.bosomblog.entity.PostsExample">
+		delete from posts
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+
+	<!-- 添加一条博文 -->
+	<insert id="insert" parameterType="com.bosomblog.entity.Posts">
+		insert into posts (pid, usersId, ptitle,
+		pcontent, ptype_id, pdate,
+		pcomments, preadings, pstatus,
+		plike, pprivate, paudit,
+		pelite)
+		values (#{pid,jdbcType=INTEGER}, #{users.usesid},
+		#{ptitle,jdbcType=VARCHAR},
+		#{pcontent,jdbcType=VARCHAR}, #{posttype.ptypeId}, #{pdate,jdbcType=TIMESTAMP},
+		#{pcomments,jdbcType=INTEGER}, #{preadings,jdbcType=INTEGER},
+		#{pstatus,jdbcType=INTEGER},
+		#{plike,jdbcType=INTEGER}, #{pprivate,jdbcType=INTEGER}, #{paudit,jdbcType=INTEGER},
+		#{pelite,jdbcType=INTEGER})
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.bosomblog.entity.Posts">
+		insert into posts
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="pid != null">
+				pid,
+			</if>
+			<if test="usersid != null">
+				usersId,
+			</if>
+			<if test="ptitle != null">
+				ptitle,
+			</if>
+			<if test="pcontent != null">
+				pcontent,
+			</if>
+			<if test="ptypeId != null">
+				ptype_id,
+			</if>
+			<if test="pdate != null">
+				pdate,
+			</if>
+			<if test="pcomments != null">
+				pcomments,
+			</if>
+			<if test="preadings != null">
+				preadings,
+			</if>
+			<if test="pstatus != null">
+				pstatus,
+			</if>
+			<if test="plike != null">
+				plike,
+			</if>
+			<if test="pprivate != null">
+				pprivate,
+			</if>
+			<if test="paudit != null">
+				paudit,
+			</if>
+			<if test="pelite != null">
+				pelite,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="pid != null">
+				#{pid,jdbcType=INTEGER},
+			</if>
+			<if test="usersid != null">
+				#{usersid,jdbcType=INTEGER},
+			</if>
+			<if test="ptitle != null">
+				#{ptitle,jdbcType=VARCHAR},
+			</if>
+			<if test="pcontent != null">
+				#{pcontent,jdbcType=VARCHAR},
+			</if>
+			<if test="ptypeId != null">
+				#{ptypeId,jdbcType=INTEGER},
+			</if>
+			<if test="pdate != null">
+				#{pdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="pcomments != null">
+				#{pcomments,jdbcType=INTEGER},
+			</if>
+			<if test="preadings != null">
+				#{preadings,jdbcType=INTEGER},
+			</if>
+			<if test="pstatus != null">
+				#{pstatus,jdbcType=INTEGER},
+			</if>
+			<if test="plike != null">
+				#{plike,jdbcType=INTEGER},
+			</if>
+			<if test="pprivate != null">
+				#{pprivate,jdbcType=INTEGER},
+			</if>
+			<if test="paudit != null">
+				#{paudit,jdbcType=INTEGER},
+			</if>
+			<if test="pelite != null">
+				#{pelite,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.bosomblog.entity.PostsExample"
+		resultType="java.lang.Long">
+		select count(*) from posts
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update posts
+		<set>
+			<if test="record.pid != null">
+				pid = #{record.pid,jdbcType=INTEGER},
+			</if>
+			<if test="record.usersid != null">
+				usersId = #{record.usersid,jdbcType=INTEGER},
+			</if>
+			<if test="record.ptitle != null">
+				ptitle = #{record.ptitle,jdbcType=VARCHAR},
+			</if>
+			<if test="record.pcontent != null">
+				pcontent = #{record.pcontent,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ptypeId != null">
+				ptype_id = #{record.ptypeId,jdbcType=INTEGER},
+			</if>
+			<if test="record.pdate != null">
+				pdate = #{record.pdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.pcomments != null">
+				pcomments = #{record.pcomments,jdbcType=INTEGER},
+			</if>
+			<if test="record.preadings != null">
+				preadings = #{record.preadings,jdbcType=INTEGER},
+			</if>
+			<if test="record.pstatus != null">
+				pstatus = #{record.pstatus,jdbcType=INTEGER},
+			</if>
+			<if test="record.plike != null">
+				plike = #{record.plike,jdbcType=INTEGER},
+			</if>
+			<if test="record.pprivate != null">
+				pprivate = #{record.pprivate,jdbcType=INTEGER},
+			</if>
+			<if test="record.paudit != null">
+				paudit = #{record.paudit,jdbcType=INTEGER},
+			</if>
+			<if test="record.pelite != null">
+				pelite = #{record.pelite,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update posts
+		set pid = #{record.pid,jdbcType=INTEGER},
+		usersId = #{record.usersid,jdbcType=INTEGER},
+		ptitle = #{record.ptitle,jdbcType=VARCHAR},
+		pcontent = #{record.pcontent,jdbcType=VARCHAR},
+		ptype_id = #{record.ptypeId,jdbcType=INTEGER},
+		pdate = #{record.pdate,jdbcType=TIMESTAMP},
+		pcomments = #{record.pcomments,jdbcType=INTEGER},
+		preadings = #{record.preadings,jdbcType=INTEGER},
+		pstatus = #{record.pstatus,jdbcType=INTEGER},
+		plike = #{record.plike,jdbcType=INTEGER},
+		pprivate = #{record.pprivate,jdbcType=INTEGER},
+		paudit = #{record.paudit,jdbcType=INTEGER},
+		pelite = #{record.pelite,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+
+	<!-- 根据主键修改博文内容 -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.bosomblog.entity.Posts">
+		update posts
+		<set>
+			<if test="ptitle != null">
+				ptitle = #{ptitle,jdbcType=VARCHAR},
+			</if>
+			<if test="pcontent != null">
+				pcontent = #{pcontent,jdbcType=VARCHAR},
+			</if>
+			<if test="posttype.ptypeId != null">
+				ptype_id = #{posttype.ptypeId,jdbcType=INTEGER},
+			</if>
+			<if test="pdate != null">
+				pdate = #{pdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="pcomments != null">
+				pcomments = #{pcomments,jdbcType=INTEGER},
+			</if>
+			<if test="preadings != null">
+				preadings = #{preadings,jdbcType=INTEGER},
+			</if>
+			<if test="pstatus != null">
+				pstatus = #{pstatus,jdbcType=INTEGER},
+			</if>
+			<if test="plike != null">
+				plike = #{plike,jdbcType=INTEGER},
+			</if>
+			<if test="pprivate != null">
+				pprivate = #{pprivate,jdbcType=INTEGER},
+			</if>
+			<if test="paudit != null">
+				paudit = #{paudit,jdbcType=INTEGER},
+			</if>
+			<if test="pelite != null">
+				pelite = #{pelite,jdbcType=INTEGER},
+			</if>
+		</set>
+		where pid = #{pid,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.bosomblog.entity.Posts">
+		update posts
+		set usersId = #{usersid,jdbcType=INTEGER},
+		ptitle = #{ptitle,jdbcType=VARCHAR},
+		pcontent = #{pcontent,jdbcType=VARCHAR},
+		ptype_id = #{ptypeId,jdbcType=INTEGER},
+		pdate = #{pdate,jdbcType=TIMESTAMP},
+		pcomments = #{pcomments,jdbcType=INTEGER},
+		preadings = #{preadings,jdbcType=INTEGER},
+		pstatus = #{pstatus,jdbcType=INTEGER},
+		plike = #{plike,jdbcType=INTEGER},
+		pprivate = #{pprivate,jdbcType=INTEGER},
+		paudit = #{paudit,jdbcType=INTEGER},
+		pelite = #{pelite,jdbcType=INTEGER}
+		where pid = #{pid,jdbcType=INTEGER}
+	</update>
+
+	<!-- 修改置顶与精贴 -->
+	<update id="updateByExampleSelectives" parameterType="com.bosomblog.entity.Posts">
+		update posts
+		<set>
+			<if test="pid != null">
+				pid = #{pid,jdbcType=INTEGER},
+			</if>
+
+			<if test="ptitle != null">
+				ptitle = #{ptitle,jdbcType=VARCHAR},
+			</if>
+			<if test="pcontent != null">
+				pcontent = #{pcontent,jdbcType=VARCHAR},
+			</if>
+
+			<if test="pdate != null">
+				pdate = #{pdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="pcomments != null">
+				pcomments = #{pcomments,jdbcType=INTEGER},
+			</if>
+			<if test="preadings != null">
+				preadings = #{preadings,jdbcType=INTEGER},
+			</if>
+			<if test="pstatus != null">
+				pstatus = #{pstatus,jdbcType=INTEGER},
+			</if>
+
+			<if test="pprivate != null">
+				pprivate = #{pprivate,jdbcType=INTEGER},
+			</if>
+			<if test="paudit != null">
+				paudit = #{paudit,jdbcType=INTEGER},
+			</if>
+			<if test="pelite != null">
+				pelite = #{pelite,jdbcType=INTEGER},
+			</if>
+		</set>
+		where pid=#{pid}
+	</update>
+
+</mapper>
